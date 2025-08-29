@@ -4,7 +4,7 @@ import { saveToken } from "./auth";
 const BASE_URL:string = import.meta.env.VITE_API_BASE_URL;
 
 export async function loginUser(data: LoginRequest): Promise<void> {
-  const res = await fetch(`${BASE_URL}/auth/login`, {
+  const res = await fetch(`${BASE_URL}/users/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
