@@ -12,10 +12,7 @@ export default function App() {
       <Layout>
         <Routes>
           <Route path="/" element={<Home/>} />
-          <Route path="/inbox" element={<h1>Inbox</h1>} />
-          <Route path="/calendar" element={<h1>Calendar</h1>} />
-          <Route path="/search" element={<h1>Search</h1>} />
-          <Route path="/settings" element={<h1>Settings</h1>} />
+          <Route path="/folder/:folderId" element={<Home/>} />
         </Routes>
       </Layout>
     </main>

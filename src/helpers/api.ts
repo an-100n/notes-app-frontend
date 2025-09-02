@@ -1,4 +1,4 @@
-import type { NoteRequest, NoteResponse } from "../types";
+import type { NoteRequest, NoteResponse, Folder } from "../types";
 import { getToken } from "./auth";
 import data from "@/assets/data.json"
 
@@ -6,13 +6,17 @@ import data from "@/assets/data.json"
 const BASE_URL: string = import.meta.env.VITE_API_BASE_URL;
 
 type DataFile = {
-  folders: { id: string; folderName: string }[]
+  folders: Folder[]
   notes: NoteResponse[]
 }
 const typed = data as DataFile
 
 export function getNotesLocal(): NoteResponse[] {
   return typed.notes
+}
+
+export function getFoldersLocal(): Folder[] {
+  return typed.folders
 }
 
 

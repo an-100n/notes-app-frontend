@@ -12,6 +12,11 @@ export interface NoteResponse {
     folderId: string;    // UUID serialized as string
 }
 
+export interface Folder {
+    id: string;
+    folderName: string;
+}
+
 
 export interface RegisterRequest {
     username: string;
