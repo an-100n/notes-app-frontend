@@ -16,7 +16,13 @@ export function getNotesLocal(): NoteResponse[] {
 }
 
 export function getFoldersLocal(): Folder[] {
-  return typed.folders
+  try {
+    const extra = typeof window !== "undefined" ? window.localStorage.getItem("folders") : null
+    const parsed: Folder[] = extra ? JSON.parse(extra) : []
+    return [...typed.folders, ...parsed]
+  } catch {
+    return typed.folders
+  }
 }
 
 
@@ -36,4 +42,26 @@ export async function createNote(note: NoteRequest): Promise<NoteResponse> {
   });
   if (!res.ok) throw new Error("Failed to create note");
   return res.json();
+}
+
+// Local-only helper to create a folder persisted in localStorage
+export function createFolderLocal(folderName: string): Folder {
+  const name = folderName.trim()
+  if (!name) throw new Error("Folder name is required")
+  const id = (typeof crypto !== "undefined" && crypto.randomUUID) ? crypto.randomUUID() : `${Date.now()}`
+  const newFolder: Folder = { id, folderName: name }
+
+  if (typeof window !== "undefined") {
+    try {
+      const existing = window.localStorage.getItem("folders")
+      const arr: Folder[] = existing ? JSON.parse(existing) : []
+      arr.push(newFolder)
+      window.localStorage.setItem("folders", JSON.stringify(arr))
+    } catch (e) {
+      // swallow to allow UI to continue; caller can still use returned value
+      console.error("Failed to persist folder to localStorage", e)
+    }
+  }
+
+  return newFolder
 }

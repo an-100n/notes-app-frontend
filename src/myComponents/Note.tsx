@@ -16,10 +16,15 @@ export default function Note({ note }: NoteProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [title, setTitle] = useState(note.noteTitle)
   const [body, setBody] = useState(note.noteBody)
-  const [combined, setCombined] = useState<string>("")
+  const [draftTitle, setDraftTitle] = useState("")
+  const [draftBody, setDraftBody] = useState("")
+
+  const TITLE_MAX = 1000
+  const BODY_MAX = 6000
 
   function open() {
-    setCombined(`${title}${body ? "\n" + body : ""}`)
+    setDraftTitle(title)
+    setDraftBody(body)
     setIsOpen(true)
   }
 
@@ -28,11 +33,12 @@ export default function Note({ note }: NoteProps) {
   }
 
   function save() {
-    const lines = combined.split(/\r?\n/)
-    const t = (lines[0] ?? "").trim()
-    const b = lines.slice(1).join("\n")
+    const t = draftTitle.trim()
+    const tooLongTitle = draftTitle.length > TITLE_MAX
+    const tooLongBody = draftBody.length > BODY_MAX
+    if (!t || tooLongTitle || tooLongBody) return
     setTitle(t)
-    setBody(b)
+    setBody(draftBody)
     close()
   }
 
@@ -60,26 +66,43 @@ export default function Note({ note }: NoteProps) {
                 <h2 className="text-base font-semibold"></h2>
                 <button
                   onClick={close}
-                  className="rounded p-1 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                  className="rounded py-1 px-2 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800"
                   aria-label="Close"
-                >
-                  ?
-                </button>
+                >✕</button>
               </div>
-              <div className="p-4 space-y-4">
-                <div className="space-y-2">
+              <div className="p-4 space-y-3">
+                <div className="rounded-md border border-neutral-300 dark:border-neutral-700 focus-within:ring-2 focus-within:ring-neutral-400">
+                  <input
+                    type="text"
+                    value={draftTitle}
+                    onChange={(e) => setDraftTitle(e.target.value)}
+                    placeholder="Title"
+                    aria-label="Note title"
+                    maxLength={TITLE_MAX + 1}
+                    className="block w-full border-0 bg-transparent px-3 py-2 text-sm outline-none placeholder:text-neutral-400"
+                  />
+                  <div className="h-px bg-neutral-200 dark:bg-neutral-800" />
                   <textarea
-                    id="note-combined"
-                    value={combined}
-                    onChange={(e) => setCombined(e.target.value)}
-                    placeholder={"Title on the first line\nBody starts on the next line"}
-                    className="min-h-[360px] w-full resize-y rounded-md border border-neutral-300 bg-transparent px-3 py-2 text-sm shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 dark:border-neutral-700"
+                    value={draftBody}
+                    onChange={(e) => setDraftBody(e.target.value)}
+                    placeholder="Body"
+                    aria-label="Note body"
+                    rows={12}
+                    className="block w-full border-0 bg-transparent px-3 py-2 text-sm outline-none resize-y placeholder:text-neutral-400 min-h-[280px]"
                   />
                 </div>
+                {(!draftTitle.trim() || draftTitle.length > TITLE_MAX || draftBody.length > BODY_MAX) && (
+                  <p className="text-sm text-red-600">
+                    {!draftTitle.trim() ? "Title is required" : draftTitle.length > TITLE_MAX ? `Title exceeds ${TITLE_MAX} characters` : `Body exceeds ${BODY_MAX} characters`}
+                  </p>
+                )}
+                <p className="text-xs text-neutral-500">
+                  Title: {draftTitle.length}/{TITLE_MAX} • Body: {draftBody.length}/{BODY_MAX}
+                </p>
               </div>
               <div className="flex items-center justify-end gap-2 px-4 py-3 border-t border-neutral-200 dark:border-neutral-800">
                 <Button variant="ghost" onClick={close}>Cancel</Button>
-                <Button onClick={save}>Save</Button>
+                <Button onClick={save} disabled={!draftTitle.trim() || draftTitle.length > TITLE_MAX || draftBody.length > BODY_MAX}>Save</Button>
               </div>
             </div>
           </div>
@@ -88,4 +111,3 @@ export default function Note({ note }: NoteProps) {
     </>
   )
 }
-
